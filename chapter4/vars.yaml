@@ -1,0 +1,7 @@
+---
+# Directory paths
+download_dir: /tmp                # Temporary directory for downloads
+solr_dir: /opt/solr               # Installation directory for Solr
+
+solr_version: 8.5.0
+solr_checksum: sha512:aodjsaklnflnaslknfnsdlfnasdfn

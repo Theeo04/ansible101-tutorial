@@ -1,0 +1,73 @@
+---
+- name: Install Apache
+  hosts: all
+  become: true
+
+  # Ansible Facts: ansible-playbook -i inventory -m setup
+
+  # Declare playbook level vars
+  # vars:
+  #   apache_package: apache2
+  #   apache_service: apache2
+  #   apache_config_dir: /etc/apache2/conf.d
+  
+  vars_files:
+    - vars/apache_default.yaml
+    - vars/apache_{{ansible_os_family}}.yaml # Load vars based on the OS family -> different vars for different OS families
+
+  #Handlers -> they are running at the end of the playbook, not after the tasks where are called runs !
+  handlers:
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted
+      # notify: restart memcached -> a handler can notify another handler
+
+    - name: restart memcached
+      service:
+        name: memcached
+        state: restarted
+
+  #Running tasks for centos hosts 14KL05 14IJ06
+  tasks:
+    - name: Download a file
+      get_url:
+        url: http://ipv4.download.thinkbroadband.com/20MB.zip
+        dest: /tmp
+      environment:  
+        http_proxy: http://proxy.example.com:8080
+        https_proxy: http://proxy.example.com:8080 # Set proxy variable module level
+
+    # Create environment variables
+    - name: Add an env variable to the remote user's shell
+      lineinfile:
+        dest: "~/.bash_profile"
+        regexp: '^ENV_VAR=' # Caută o linie care începe cu ENV_VAR=
+        line: 'ENV_VAR=value' # Adaugă sau înlocuiește linia cu ENV_VAR=value
+      become: false # Run this task as the remote user, not as root
+
+    - name: Get the value of an environment variable
+      shell: 'source ~/.bash_profile && echo $ENV_VAR'
+      register: foo # Register the output of the command in a variable named 'foo'
+
+    - name: Debugging
+      debug: msg="The variable is {{ foo.stdout }}" # Print the value of the variable
+
+    - name: Ensure apache is installed
+      apt:
+        name: "{{ apache_package }}"
+        state: present
+
+    - name: Copy config file
+      copy:
+        src: /config/httpd.conf
+        dest: "{{ apache_config_dir }}/httpd.conf"
+      notify: 
+        - restart apache
+        - restart memcached
+
+    - name: Ensure apache is running
+      service:
+        name: " {{ apache_service }} "
+        state: started
+        enabled: true

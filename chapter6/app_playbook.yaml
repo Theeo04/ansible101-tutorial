@@ -1,0 +1,14 @@
+---
+- name: Clone App
+  hosts: all
+  become: true
+
+  task:
+    - name: Clone git repository
+      git:
+        repo: http://git.com/myrepo.git
+        dest: /opt/myapp
+        version: master
+
+# Use it in main playbook with import_playbook
+# - import_playbook: chapter6/app_playbook.yaml

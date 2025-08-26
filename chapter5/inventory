@@ -1,0 +1,13 @@
+[centos]
+192.168.60.4
+
+[centos:vars]
+ansible_user=centos
+ansible_ssh_private_key=!/.ssh/abc_centos.pem
+
+[ubuntu]
+192.168.60.5
+
+[centos:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key=!/.ssh/abc_ubuntu.pem

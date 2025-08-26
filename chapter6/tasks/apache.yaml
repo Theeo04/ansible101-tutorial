@@ -1,0 +1,21 @@
+---
+# Ensure Apache is installed
+- name: Install Apache
+  apt:
+    name: "{{ apache_package }}"
+    state: present
+
+# Deploy Apache configuration
+- name: Copy Apache configuration file
+  copy:
+    src: /config/httpd.conf
+    dest: "{{ apache_config_dir }}/httpd.conf"
+  notify:
+    - restart apache
+
+# Ensure Apache service is running
+- name: Start and enable Apache service
+  service:
+    name: "{{ apache_service }}"
+    state: started
+    enabled: true

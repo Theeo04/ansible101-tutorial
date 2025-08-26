@@ -1,0 +1,39 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars/api_key.yaml
+
+  handlers:
+    - import_tasks: handlers/apache.yaml
+
+  pre_tasks:
+    - name: Echo the API Key which was injected into the env
+      shell: echo $API_KEY
+      environment: 
+        API_KEY: "{{ myapp_api_key }}" # Task level environment variable 
+      register: echo_result
+      tags:
+        - api # ansible-playbook chapter6/playbook.yaml --tags=api
+
+    - name: Show the result
+      debug: var=echo_result.stdout
+
+# When to run the playbook: ansible-playbook chapter6/playbook.yaml --ask-vault-pass
+
+  tasks:
+    - import_tasks: tasks/apache.yaml
+      # vars:
+      #   apache_package: apache2
+      #   apache_service: apache2
+      #   apache_config_dir: /etc/{{ ansible_facts['distribution'] }}
+
+    # - name: Clone git repository
+    #   git:
+    #     repo: http://git.com/myrepo.git
+    #     dest: /opt/myapp
+    #     version: master
+
+- import_playbook: app_playbook.yaml

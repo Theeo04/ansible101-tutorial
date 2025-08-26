@@ -1,0 +1,20 @@
+# App Server
+[app]
+192.168.60.4
+192.168.60.5
+
+# DB server
+[db]
+192.168.60.6
+
+# Group of all servers
+[multi:children]
+app
+db
+
+# Variables for all servers: Nu sunt environment variables la nivel de sistem (cum ai în Linux cu export VAR=...), 
+# ci sunt variabile Ansible care spun cum să se conecteze și cum să ruleze playbook-ul.
+
+[multi:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key

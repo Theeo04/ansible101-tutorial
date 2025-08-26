@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Ensure NTP is installed
+      apt:
+        name: ntp
+        state: present
+        update_cache: yes
+    #If we want to declare the command explicitly, we can use the following:
+    # - command: apt-get install -y ntp
+
+    #Or shell:
+    - shell: |
+        if ! command -v ntp &> /dev/null; then
+          echo "NTP is not installed. Installing now..."
+          apt-get install -y ntp
+        else
+          echo "NTP is already installed."
+        fi
+
+    - name: Ensure NTP service is running
+      systemd:
+        name: ntp
+        state: started
+        enabled: yes

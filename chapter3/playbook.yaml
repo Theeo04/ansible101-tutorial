@@ -1,0 +1,31 @@
+# Translation for the script in a playbook
+---
+- name: Install Apache
+  hosts: all
+
+  tasks:
+    - name: Install Apache package
+      apt:
+        name:
+          - httpd
+          - httpd-devel
+        state: present
+
+    - name: Copy configuration file
+      copy:
+        src: "{{ items.src }}"
+        dest: "{{ items.dest }}"
+        owner: root
+        group: root
+        mode: "0644"
+      with_items:
+        - src: httpd.conf
+          dest: /etc/httpd/conf/httpd.conf,
+        - src: httpd-vhosts.conf
+          dest: /etc/httpd/conf.d/httpd-vhosts.conf
+
+    - name: Ensure Apache is running and configure it to start at boot
+      service:
+        name: httpd
+        state: started
+        enabled: true
