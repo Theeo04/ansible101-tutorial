@@ -1,0 +1,91 @@
+---
+- hosts: centos
+  become: true
+
+  handlers:
+    - name: restart ssh
+      service:
+        name: sshd
+        state: restarted
+
+  tasks:
+    - name: Tell SELinux about SSH new port
+      seport:
+        ports: 2849
+        proto: tcp
+        setype: ssh_port_t
+        state: present
+
+    - name: Make sure SSH is more secure
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      # This is a loop
+      with_items: 
+        - { regexp: '^PermitRootLogin', line: 'PermitRootLogin no' }
+        - { regexp: '^PasswordAuthentication', line: 'PasswordAuthentication no' }
+        - { regexp: '^Port', line: 'Port 2849' }
+      notify: restart ssh
+      # If we change the sshd_config file, we need to restart sshd service -> notify the handler
+
+    - name: Add user 'ansible'
+      user:
+        name: ansible
+        comment: "Ansible Admin User"
+
+    - name: Set up sudo for user 'ansible'
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^ansible'
+        line: 'ansible ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Remove unused packages
+      package:
+        name:
+          - nano
+          - httpd
+          - mailutils
+        state: absent
+
+    - name: Edit file permission
+      file:
+        path: /etc/ssh/sshd_config
+        mode: '0600' # only root can read/write 
+
+    - name: Make sure everything is up to date
+      apt: 
+        upgrade: dist
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+      # This task will only run on Debian-based systems
+      
+
+    - name: Configure a firewalld
+      package:
+        name: firewalld
+        state: present
+
+    - name: Ensure firewalld is running and enabled
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Configure ports for firewalld
+      firewalld:
+        state: "{{ item.state }}"
+        port: "{{ item.port }}"
+        permanent: yes
+        immediate: yes
+        zone: external
+      with_items:
+        - state: enabled
+          port: 22/tcp
+        - state: enabled
+          port: 80/tcp
+        - state: enabled
+          port: 123/udp
