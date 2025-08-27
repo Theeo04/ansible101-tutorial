@@ -1,0 +1,6 @@
+# Fallback values
+---
+lb_listen_port: 8080
+lb_backend_port: 80
+lb_backends: []
+

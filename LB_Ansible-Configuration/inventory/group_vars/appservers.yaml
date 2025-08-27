@@ -1,0 +1,3 @@
+# Bot apps listen on 8080 port
+app_listen_port: 8080
+default_entrypoint: /home

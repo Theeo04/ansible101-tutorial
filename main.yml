@@ -1,0 +1,10 @@
+---
+- name: Configure Nginx for all application hosts
+  hosts: app
+  roles:
+    - nginx_app
+
+- name: Configure HAProxy load balancer
+  hosts: lb
+  roles:
+    - lb

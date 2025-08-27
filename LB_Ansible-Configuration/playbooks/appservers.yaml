@@ -1,0 +1,7 @@
+---
+- name: Configure Nginx for appservers
+  hosts: appservers
+  become: true
+  serial: 1    # rolling updates
+  roles:
+    - nginx_app

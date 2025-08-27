@@ -1,0 +1,27 @@
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    maxconn 2048
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    timeout connect 5s
+    timeout client  50s
+    timeout server  50s
+
+frontend http_front
+    bind *:{{ lb_listen_port }}
+    default_backend app_backends
+
+backend app_backends
+    balance roundrobin
+    {% for backend in lb_backends %}
+    server {{ backend.name }} {{ backend.address }}:{{ lb_backend_port }} check
+    {% endfor %}

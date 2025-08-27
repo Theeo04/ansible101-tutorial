@@ -1,0 +1,2 @@
+lb_listen_port: 80 # Port from where can be accessed the load balancer
+lb_backend_port: 8080 # Port where the app servers are listening
