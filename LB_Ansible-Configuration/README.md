@@ -1,36 +1,40 @@
 # Load Balancer + Appservers with Ansible & Vagrant
 
-Acest proiect demonstrează configurarea unui mediu simplu de producție folosind Vagrant + Ansible:
+This project demonstrates the configuration of a simple production environment using Vagrant + Ansible:
 
-- 2 servere aplicație (app1, app2) cu Nginx instalat și configurat.
-- 1 server Load Balancer (lb) cu HAProxy, care face round-robin între cele două appservers.
+- 2 application servers (app1, app2) with Nginx installed and configured.
+- 1 Load Balancer server (lb) with HAProxy, performing round-robin between the two app servers.
 
 ### Structure
 
 - Link: https://docs.ansible.com/ansible/2.8/user_guide/playbooks_best_practices.html#use-dynamic-inventory-with-clouds 
 - Layout: Alternative Directory Layout
 
-# Rulare:
+### Architecture:
 
-- Pornire VM-uri:
+![architecture diagram](photos/image.png)
+
+# Run:
+
+- Start the VMs:
 
 ```bash
 vagrant up
 ```
 
-- Rulare Playbook:
+- Run the Playbook:
 
 ```bash
 /LB_Ansible-Configuration$ ansible-playbook -i inventory/inventory playbooks/main.yaml
 ```
 
-- Accesează load balancer-ul:
+- Access the load balancer:
 ```bash
 curl http://192.168.56.10/
 ```
 
-### Note
+### Notes
 
-- Variabile comune sunt definite în inventory/group_vars/
-- Variabile specifice fiecărui host sunt în host_vars/
-- Roles-urile (nginx_app, lb) sunt independente și pot fi reutilizate în alte proiecte
+- Common variables are defined in inventory/group_vars/
+- Host-specific variables are in host_vars/
+- The roles (nginx_app, lb) are independent and can be reused in other projects
